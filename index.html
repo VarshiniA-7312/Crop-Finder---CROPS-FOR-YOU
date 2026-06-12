@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harvestify — Find Your Crop</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-leaf">🌿</span>
+                <span class="logo-name">Harvestify</span>
+            </div>
+            <nav class="header-nav">
+                <a href="#about">About Hydroponics</a>
+                <a href="#quiz-section">Find My Crop</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <p class="hero-eyebrow">The Future of Growing</p>
+            <h1 class="hero-title">Grow Smarter.<br>Grow <span class="hero-accent">Anywhere.</span></h1>
+            <p class="hero-subtitle">Hydroponics is changing how the world eats. Discover which crop belongs in your
+                space — no soil required.</p>
+            <a href="#quiz-section" class="btn-primary">Find My Crop →</a>
+        </div>
+        <div class="hero-visual">
+            <div class="globe-wrap">
+                <canvas id="globeCanvas" width="400" height="400"></canvas>
+                <div class="floating-pill pill-1">💧 No Soil Needed</div>
+                <div class="floating-pill pill-2">⚡ 3× Faster Growth</div>
+                <div class="floating-pill pill-3">🌍 90% Less Water</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="crop-scroll-section" id="crops">
+        <div class="scroll-label"><span>🌱 Crops You Can Grow at Home</span></div>
+        <div class="crop-ticker-wrapper">
+            <div class="crop-ticker" id="cropTicker"></div>
+        </div>
+    </section>
+
+    <section class="about-section" id="about">
+        <div class="about-inner">
+            <div class="about-text">
+                <p class="section-eyebrow">What is Hydroponics?</p>
+                <h2 class="section-title">Plants don't need soil.<br>They need <em>nutrients.</em></h2>
+                <p class="about-body">Hydroponics is the science of growing plants in water infused with minerals — no
+                    earth required. Roots get exactly what they need, when they need it. The result? Crops that grow up
+                    to 3× faster, use 90% less water than traditional farming, and can thrive anywhere from a city
+                    apartment to a polar research station.</p>
+                <p class="about-body">By 2050, the world will need to feed 10 billion people. Hydroponics is one of the
+                    most promising answers — bringing fresh food to food deserts, reducing agricultural land use, and
+                    putting growing power back in the hands of everyday people.</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-number">90%</span><span class="stat-label">Less Water
+                        Used</span></div>
+                <div class="stat-card"><span class="stat-number">3×</span><span class="stat-label">Faster Growth
+                        Rate</span></div>
+                <div class="stat-card"><span class="stat-number">365</span><span class="stat-label">Days a Year
+                        Harvest</span></div>
+                <div class="stat-card"><span class="stat-number">0</span><span class="stat-label">Soil Required</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quiz-section" id="quiz-section">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <p class="section-eyebrow">Crop Finder Quiz</p>
+                <h2 class="section-title">"Which Crop Should I Grow?"</h2>
+                <p class="quiz-subtitle">Answer 4 quick questions and we'll match you with the perfect hydroponic crops
+                    for your space.</p>
+            </div>
+
+            <div class="progress-bar-wrapper" id="progressWrapper">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-label" id="progressLabel">Question 1 of 4</span>
+            </div>
+
+            <div class="quiz-steps" id="quizSteps">
+
+                <div class="quiz-step active" data-step="0">
+                    <p class="question-num">01</p>
+                    <h3 class="question-text">How much space do you have?</h3>
+                    <div class="options-grid">
+                        <button class="option-btn" data-key="space" data-val="windowsill">
+                            <span class="option-icon">🪟</span><span class="option-label">Windowsill</span><span
+                                class="option-desc">A small ledge or shelf</span>
+                        </button>
+                        <button class="option-btn" data-key="space" data-val="balcony">
+                            <span class="option-icon">🏙️</span><span class="option-label">Balcony</span><span
+                                class="option-desc">Outdoor or semi-outdoor space</span>
+                        </button>
+                        <button class="option-btn" data-key="space" data-val="room">
+                            <span class="option-icon">🏠</span><span class="option-label">Full Room</span><span
+                                class="option-desc">Dedicated indoor grow space</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-step" data-step="1">
+                    <p class="question-num">02</p>
+                    <h3 class="question-text">How much natural light does your space get?</h3>
+                    <div class="options-grid">
+                        <button class="option-btn" data-key="light" data-val="low">
+                            <span class="option-icon">🌑</span><span class="option-label">Low Light</span><span
+                                class="option-desc">North-facing or dim interior</span>
+                        </button>
+                        <button class="option-btn" data-key="light" data-val="medium">
+                            <span class="option-icon">🌤️</span><span class="option-label">Medium Light</span><span
+                                class="option-desc">Indirect sunlight, east-facing</span>
+                        </button>
+                        <button class="option-btn" data-key="light" data-val="lots">
+                            <span class="option-icon">☀️</span><span class="option-label">Lots of Light</span><span
+                                class="option-desc">South/west-facing, bright</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-step" data-step="2">
+                    <p class="question-num">03</p>
+                    <h3 class="question-text">What's your experience level?</h3>
+                    <div class="options-grid">
+                        <button class="option-btn" data-key="experience" data-val="beginner">
+                            <span class="option-icon">🌱</span><span class="option-label">Beginner</span><span
+                                class="option-desc">First time growing anything</span>
+                        </button>
+                        <button class="option-btn" data-key="experience" data-val="pro">
+                            <span class="option-icon">🧑‍🌾</span><span class="option-label">Experienced</span><span
+                                class="option-desc">Comfortable with plants & systems</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-step" data-step="3">
+                    <p class="question-num">04</p>
+                    <h3 class="question-text">What do you most want to grow?</h3>
+                    <div class="options-grid">
+                        <button class="option-btn" data-key="goal" data-val="herbs">
+                            <span class="option-icon">🌿</span><span class="option-label">Fresh Herbs</span><span
+                                class="option-desc">Basil, mint, cilantro for cooking</span>
+                        </button>
+                        <button class="option-btn" data-key="goal" data-val="greens">
+                            <span class="option-icon">🥬</span><span class="option-label">Leafy Greens</span><span
+                                class="option-desc">Lettuce, spinach, arugula</span>
+                        </button>
+                        <button class="option-btn" data-key="goal" data-val="fruits">
+                            <span class="option-icon">🍓</span><span class="option-label">Fruits & Veggies</span><span
+                                class="option-desc">Tomatoes, peppers, strawberries</span>
+                        </button>
+                        <button class="option-btn" data-key="goal" data-val="exotic">
+                            <span class="option-icon">🌺</span><span class="option-label">Something Exotic</span><span
+                                class="option-desc">Microgreens, watercress, flowers</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="quiz-results hidden" id="quizResults">
+                <div class="results-header">
+                    <h2 class="results-title">Your Perfect Crops 🌿</h2>
+                    <p class="results-subtitle">Based on your answers, here's what will thrive in your space:</p>
+                </div>
+                <div class="results-cards" id="resultsCards"></div>
+                <button class="btn-secondary" id="startOverBtn">↩ Start Over</button>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <span class="logo-leaf">🌿</span>
+                <span class="logo-name">Harvestify</span>
+            </div>
+            <p class="footer-tagline">Growing the future, one crop at a time.</p>
+            <p class="footer-copy">© 2025 Harvestify · Built with 💚 for the planet</p>
+        </div>
+    </footer>
+
+    <canvas id="confettiCanvas"></canvas>
+    <div class="confetti-banner hidden" id="confettiBanner">
+        <span>🌿 You Found Your Crop! 🌿</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
