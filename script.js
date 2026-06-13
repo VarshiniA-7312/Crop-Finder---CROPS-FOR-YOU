@@ -1,6 +1,7 @@
 // ===========================
 //  HARVESTIFY — script.js FINAL
 //  Rotating Globe + Quiz (all 4 answers) + Smart Chatbot
+//  + Scroll Animations + Custom Cursor
 // ===========================
 
 // ─── CROP DATA ────────────────────────────────────────────────────────────────
@@ -145,10 +146,10 @@ let currentStep = 0;
 const totalSteps = 4;
 
 const WEIGHTS = {
-    space: { match: 4, noMatch: -999 },
-    light: { match: 4, noMatch: -999 },
-    experience: { match: 3, noMatch: -1 },
-    goal: { match: 5, noMatch: 0 }
+    space:      { match: 4,  noMatch: -999 },
+    light:      { match: 4,  noMatch: -999 },
+    experience: { match: 3,  noMatch: -1   },
+    goal:       { match: 5,  noMatch:  0   }
 };
 
 function matchCrops(answers) {
@@ -156,10 +157,10 @@ function matchCrops(answers) {
     if (!space || !light || !experience || !goal) return [];
     const scored = ALL_CROPS.map(crop => {
         let score = 0;
-        score += crop.space.includes(space) ? WEIGHTS.space.match : WEIGHTS.space.noMatch;
-        score += crop.light.includes(light) ? WEIGHTS.light.match : WEIGHTS.light.noMatch;
+        score += crop.space.includes(space)           ? WEIGHTS.space.match      : WEIGHTS.space.noMatch;
+        score += crop.light.includes(light)           ? WEIGHTS.light.match      : WEIGHTS.light.noMatch;
         score += crop.experience.includes(experience) ? WEIGHTS.experience.match : WEIGHTS.experience.noMatch;
-        score += crop.tags.includes(goal) ? WEIGHTS.goal.match : WEIGHTS.goal.noMatch;
+        score += crop.tags.includes(goal)             ? WEIGHTS.goal.match       : WEIGHTS.goal.noMatch;
         if (crop.space.includes(space) && crop.light.includes(light) &&
             crop.experience.includes(experience) && crop.tags.includes(goal)) score += 3;
         return { crop, score };
@@ -201,14 +202,14 @@ function showResults() {
         const card = document.createElement("div");
         card.className = "result-card";
         card.innerHTML = `
-      <img class="result-img" src="${crop.image}" alt="${crop.name}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span class="result-emoji" style="display:none">${crop.emoji}</span>
-      <span class="result-name">${crop.name}</span>
-      <span class="result-badge">${crop.badge}</span>
-      <p class="result-reason">${crop.reason}</p>
-      <span class="result-grow-time">🕐 ${crop.growTime}</span>
-    `;
+            <img class="result-img" src="${crop.image}" alt="${crop.name}"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="result-emoji" style="display:none">${crop.emoji}</span>
+            <span class="result-name">${crop.name}</span>
+            <span class="result-badge">${crop.badge}</span>
+            <p class="result-reason">${crop.reason}</p>
+            <span class="result-grow-time">🕐 ${crop.growTime}</span>
+        `;
         cards.appendChild(card);
     });
     document.getElementById("quizSteps").style.display = "none";
@@ -274,70 +275,122 @@ function fireConfetti() {
     })();
 }
 
-// ─── SMART CHATBOT ────────────────────────────────────────────────────────────
+// ─── SMART CHATBOT (FIXED — 25+ natural language patterns) ────────────────────
 function findCropMention(text) {
     const lower = text.toLowerCase();
     return ALL_CROPS.find(c => lower.includes(c.name.toLowerCase()) || lower.includes(c.id.toLowerCase())) || null;
 }
 
-function detectIntent(text) {
-    const t = text.toLowerCase();
-    if (/how.*(grow|start|setup|begin|plant)/i.test(t)) return "how";
-    if (/why.*(grow|worth|benefit|good|health)/i.test(t)) return "why";
-    if (/ph|acid|alkaline/i.test(t)) return "ph";
-    if (/\bec\b|nutrient|ppm|feed/i.test(t)) return "ec";
-    if (/light|hours|sun|bright|dim|dark/i.test(t)) return "light";
-    if (/system|setup|equipment|nft|dwc|kratky|bucket/i.test(t)) return "system";
-    if (/difficult|hard|easy|beginner/i.test(t)) return "difficulty";
-    if (/time|long|week|days|harvest|ready/i.test(t)) return "time";
-    if (/best.*beginner|easiest|start with|recommend/i.test(t)) return "recommend_beginner";
-    if (/low.?light|no.?light|dark|dim/i.test(t)) return "recommend_lowlight";
-    if (/fastest|quickest|quick/i.test(t)) return "recommend_fastest";
-    if (/nutriti|healthy|vitamin|mineral|superfood/i.test(t)) return "recommend_nutrition";
-    if (/what is hydro|hydroponics mean|explain hydro/i.test(t)) return "explain_hydroponics";
-    if (/list|all crops|what crops|which crops/i.test(t)) return "list_crops";
-    if (/hello|^hi\b|^hey\b|howdy/i.test(t)) return "greeting";
-    return "general";
-}
-
 function generateResponse(userText) {
+    const t    = userText.toLowerCase();
     const crop = findCropMention(userText);
-    const intent = detectIntent(userText);
 
-    if (intent === "greeting")
-        return `Hi there! 👋 I'm Harvestify's crop guide. Ask me anything about our 12 hydroponic crops — how to grow them, why they're worth it, what equipment you need, or which crop suits your space best!`;
+    // Greetings
+    if (/^(hi|hey|hello|howdy|sup|hiya|good morning|good afternoon|good evening)/i.test(t))
+        return `Hi there! 👋 I'm your Harvestify crop guide. Ask me anything — how to grow a specific crop, which crop suits your space, what equipment you need, what hydroponics is, or anything else about indoor growing. What's on your mind?`;
 
-    if (intent === "explain_hydroponics")
-        return `🌊 Hydroponics is the method of growing plants in nutrient-rich water instead of soil. Roots are suspended in or regularly flooded with a mineral solution containing nitrogen, phosphorus, potassium, calcium, and trace elements.\n\nHydroponic plants grow up to 3× faster than soil-grown, use 90% less water, and can be grown anywhere year-round — from a kitchen windowsill to a vertical city farm.\n\nCommon systems: Deep Water Culture (DWC), Nutrient Film Technique (NFT), Kratky (passive, no pump), and Dutch Bucket for fruiting crops. Want to know which system suits your space?`;
+    // What is hydroponics
+    if (/(what is|explain|tell me about|how does).*(hydroponic|hydro)|hydroponics (mean|work|is)/i.test(t))
+        return `🌊 Hydroponics is growing plants in nutrient-rich water instead of soil. Roots sit in or flow through a mineral solution with everything a plant needs — nitrogen, phosphorus, potassium, calcium, and trace elements.\n\nPlants grow up to 3× faster, use 90% less water, and can thrive anywhere year-round.\n\nCommon systems: Deep Water Culture (DWC), Nutrient Film Technique (NFT), Kratky (passive, no pump), and Dutch Bucket for fruiting crops. Want to know which suits your space?`;
 
-    if (intent === "list_crops")
-        return `Here are all 12 crops on Harvestify:\n\n${ALL_CROPS.map(c => `${c.emoji} ${c.name} — ${c.growTime}`).join("\n")}\n\nAsk me about any of them!`;
+    // Getting started
+    if (/(how do i start|how to start|where do i start|getting started|what do i need|how to begin|i want to start|i'm new|first time|never grown)/i.test(t))
+        return `🌱 Here's how to start with hydroponics:\n\n1. Pick an easy crop — Lettuce, Mint, or Microgreens are best for beginners.\n2. Choose a simple system — a Kratky jar needs no pump or electricity.\n3. Get basic supplies — pH meter, nutrient solution, net pots, rockwool. Under $30 total.\n4. Give it light — 10–12 hours of natural light or a basic LED grow light.\n5. Check pH every few days and top up water as needed.\n\nYou can have your first harvest in 2–3 weeks!`;
 
-    if (intent === "recommend_beginner")
-        return `🌱 Top 3 for complete beginners:\n\n1. 🥬 Lettuce — most forgiving crop, ready in 3–5 weeks, tolerates low light.\n2. 🌱 Mint — roots itself from cuttings in water, almost impossible to kill, ready in 2–3 weeks.\n3. 🌱 Microgreens — no nutrient solution needed, just water. Ready in 7–14 days.\n\nAll three work on a windowsill with minimal equipment!`;
+    // Small space / apartment
+    if (/(apartment|studio|small space|indoors|inside|no garden|no yard|renting|flat|condo)/i.test(t))
+        return `🏠 Hydroponics was literally made for indoor and small-space growing. No garden needed.\n\nBest crops for small spaces:\n🥬 Lettuce — windowsill, minimal light, ready in 3–5 weeks\n🌱 Mint — thrives in low light, grows in a simple jar\n🌱 Microgreens — any surface, ready in 7–14 days\n🍃 Basil & 🌿 Cilantro — perfect kitchen counter crops\n\nA Kratky jar takes up less space than a coffee machine and needs zero electricity.`;
 
-    if (intent === "recommend_lowlight")
-        return `🌑 Best crops for low-light conditions:\n\n${ALL_CROPS.filter(c => c.light.includes("low")).map(c => `${c.emoji} ${c.name}`).join(", ")}\n\nTop picks: 🌱 Mint and 🥬 Lettuce are most reliable in dim spaces. A basic LED grow light running 10–12 hours is all you need.`;
+    // What crops / list
+    if (/(what can i grow|what crops|which crops|what plants|what should i grow|what to grow|show.*crops|list.*crops|all crops)/i.test(t))
+        return `Here are all 12 crops you can grow with Harvestify:\n\n${ALL_CROPS.map(c => `${c.emoji} ${c.name} — ${c.growTime}`).join("\n")}\n\nAsk me about any of them, or take the quiz for a personalised recommendation!`;
 
-    if (intent === "recommend_fastest")
-        return `⚡ Fastest-growing crops:\n\n1. 🌱 Microgreens — 7–14 days. Nothing faster.\n2. 🌱 Mint — 2–3 weeks from cutting.\n3. 🌾 Watercress — 2–3 weeks, roots from supermarket cuttings.\n4. 🍃 Basil & 🥬 Arugula — 3–4 weeks each.\n\nStart with microgreens if you want food on the table fast!`;
+    // Best for beginners
+    if (/(best.*beginner|beginner.*best|easiest|easy.*grow|start with|good for.*first|first.*crop|never.*grown|no experience)/i.test(t))
+        return `🌱 Top 3 crops for complete beginners:\n\n1. 🥬 Lettuce — most forgiving, low nutrients, ready in 3–5 weeks.\n2. 🌱 Mint — roots itself from cuttings in plain water, almost impossible to kill, ready in 2–3 weeks.\n3. 🌱 Microgreens — just water, no nutrient solution at all, ready in 7–14 days.\n\nAll three work on a windowsill with minimal investment!`;
 
-    if (intent === "recommend_nutrition")
-        return `💚 Most nutritionally dense crops:\n\n1. 🌾 Watercress — 100/100 CDC nutrient density score. More vitamin C than oranges per gram.\n2. 🌱 Microgreens — up to 40× more vitamins than mature plants (USDA, 2012).\n3. 🥬 Kale — 684% of daily vitamin K per cup.\n4. 🥬 Spinach — 181% of vitamin K, 49% of vitamin A per 100g.`;
+    // Low light
+    if (/(low.?light|no.?light|not much light|dark room|north.facing|no window|no sun|little light|dim)/i.test(t))
+        return `🌑 Best crops for low-light conditions:\n\n${ALL_CROPS.filter(c => c.light.includes("low")).map(c => `${c.emoji} ${c.name}`).join(", ")}\n\nTop picks: 🌱 Mint and 🥬 Lettuce are most reliable. A basic LED grow light ($20–30) running 10–12 hours solves most low-light problems.`;
 
-    if (crop) {
-        if (intent === "how") return `${crop.emoji} How to grow ${crop.name}:\n\n${crop.howToGrow}`;
-        if (intent === "why") return `${crop.emoji} Why grow ${crop.name}?\n\n${crop.whyGrow}`;
-        if (intent === "ph") return `${crop.emoji} ${crop.name} pH: ${crop.phRange}. Use a digital pH meter and adjust with pH Up (potassium hydroxide) or pH Down (phosphoric acid). Check every time you top up the reservoir.`;
-        if (intent === "ec") return `${crop.emoji} ${crop.name} EC: ${crop.ecRange}. EC measures nutrient concentration. Start at the lower end and increase as the plant matures. Use a digital EC meter.`;
-        if (intent === "light") return `${crop.emoji} ${crop.name} needs ${crop.lightHours} of light per day. ${crop.light.includes("low") ? "Tolerates low light well — a north-facing window or basic LED grow light works." : crop.light.includes("lots") ? "Needs strong direct light — a south-facing window or dedicated grow light recommended." : "Moderate indirect light or a standard LED grow light works well."}`;
-        if (intent === "system") return `${crop.emoji} Best system for ${crop.name}: ${crop.system}.`;
-        if (intent === "difficulty") return `${crop.emoji} ${crop.name} difficulty: ${crop.difficulty}. ${crop.difficulty === "Very Easy" ? "Perfect for first-time growers." : crop.difficulty === "Easy" ? "Suitable for beginners with minimal research." : crop.difficulty === "Intermediate" ? "Requires some attention to pH, EC, and temperature." : "Best for experienced growers — needs dialled-in nutrients and strong lighting."}`;
-        if (intent === "time") return `${crop.emoji} ${crop.name}: ${crop.growTime}.`;
-        return `${crop.emoji} Quick overview of ${crop.name}:\n\n📋 Difficulty: ${crop.difficulty}\n🕐 Grow time: ${crop.growTime}\n⚗️ pH: ${crop.phRange}\n📡 EC: ${crop.ecRange}\n💡 Light: ${crop.lightHours}\n🔧 System: ${crop.system}\n\n${crop.reason}\n\nAsk "how to grow ${crop.name}" or "why grow ${crop.name}" for the full guide!`;
-    }
+    // Fastest
+    if (/(fast|fastest|quick|quickest|soonest|how soon|rapid)/i.test(t))
+        return `⚡ Fastest-growing crops:\n\n1. 🌱 Microgreens — 7–14 days. Nothing faster.\n2. 🌱 Mint — 2–3 weeks from a cutting.\n3. 🌾 Watercress — 2–3 weeks, roots from supermarket cuttings.\n4. 🍃 Basil & 🥬 Arugula — 3–4 weeks each.\n\nStart with Microgreens if you want food fast!`;
 
-    return `🌿 I'm Harvestify's crop guide! Ask me:\n\n• How to grow any of our 12 crops\n• Why each crop is worth growing\n• pH, EC, light, and system requirements\n• Which crop suits your space or experience level\n• What hydroponics is\n\nTry: "How do I grow basil?" or "Best crop for a beginner?"`;
+    // Most nutritious
+    if (/(nutriti|healthi|vitamin|mineral|superfood|health benefit|most nutritious)/i.test(t))
+        return `💚 Most nutritionally dense crops:\n\n1. 🌾 Watercress — 100/100 CDC nutrient density score.\n2. 🌱 Microgreens — 4–40× more vitamins than mature plants (USDA, 2012).\n3. 🥬 Kale — 684% of daily vitamin K per cup.\n4. 🥬 Spinach — 181% of vitamin K, 49% of vitamin A per 100g.`;
+
+    // Cost / budget
+    if (/(cost|how much|price|cheap|expensive|budget|afford|money|spend)/i.test(t))
+        return `💰 Starting hydroponics is cheaper than most people think:\n\nBasic Kratky setup: ~$15–25\nLED grow light (if needed): ~$20–40\npH meter: ~$10–15\nSeeds or cuttings: ~$2–5\n\nTotal to get started: around $30–50. A single NFT channel growing lettuce can save $300+ per year on grocery bills.`;
+
+    // Water usage
+    if (/(water|how much water|watering|water usage|save water)/i.test(t) && !crop)
+        return `💧 Hydroponics uses up to 90% less water than traditional soil farming.\n\nIn soil, most water evaporates before roots absorb it. In hydroponics, water circulates directly around the roots in a closed system — almost none is wasted.\n\nA Kratky lettuce jar uses about 1–2 litres from seed to harvest. Soil grows the same lettuce using 10–20× more.`;
+
+    // Equipment / supplies
+    if (/(equipment|supplies|tools|what.*buy|shopping|material)/i.test(t))
+        return `🔧 Basic equipment to start:\n\n• Container (jar for Kratky, tray for microgreens, NFT channel for lettuce)\n• Net pots\n• Growing medium (rockwool cubes or hydroton clay pebbles)\n• Hydroponic nutrient solution\n• pH meter — critical\n• pH Up and pH Down solutions\n\nOptional: LED grow light ($20–40), EC meter, air pump for DWC.\n\nFor microgreens: just a tray, seeds, and water. No nutrients needed.`;
+
+    // pH — no crop
+    if (/(ph|acid|alkaline|ph level)/i.test(t) && !crop)
+        return `⚗️ Most crops prefer pH 5.5–6.5.\n\nQuick guide:\n• Lettuce, Basil, Kale, Arugula: 5.5–6.5\n• Mint, Spinach: 6.0–7.0\n• Watercress: 6.5–7.5\n• Tomatoes, Peppers: 5.8–6.3\n\nAlways use a digital pH meter. Adjust with pH Up or pH Down. Check every time you top up the reservoir.`;
+
+    // EC — no crop
+    if (/(\bec\b|electrical conductivity|nutrient strength|ppm)/i.test(t) && !crop)
+        return `📡 EC measures how strong your nutrient solution is.\n\nGeneral guide:\n• Seedlings & microgreens: 0.5–1.0 mS/cm\n• Leafy greens: 0.8–1.6 mS/cm\n• Herbs: 1.0–1.6 mS/cm\n• Fruiting crops: 2.0–4.0 mS/cm\n\nAlways start at the lower end. Too high causes salt stress — leaves tip burn and curl.`;
+
+    // Systems — no crop
+    if (/(system|method|nft|dwc|deep water|kratky|dutch bucket|ebb and flow)/i.test(t) && !crop)
+        return `🔧 Main hydroponic systems:\n\n💧 Kratky — passive, no pump, no electricity. Best for beginners.\n🌊 DWC — roots in aerated nutrient solution. Simple and effective.\n📐 NFT — thin stream of nutrients over roots. Great for leafy greens.\n🪣 Dutch Bucket — drip-fed per plant. Best for tomatoes and peppers.\n🌱 Tray method — microgreens only, just water and seeds.`;
+
+    // Thank you
+    if (/(thank|thanks|thank you|cheers|appreciate)/i.test(t))
+        return `You're welcome! 🌿 Happy growing — ask me anything else anytime!`;
+
+    // About Harvestify
+    if (/(harvestify|this website|this app|this site|what is this|how does this work)/i.test(t))
+        return `🌿 Harvestify is a hydroponic crop finder built to make indoor growing accessible to everyone.\n\n• Take the 4-question quiz to get crops matched to your exact space, light, experience, and goal\n• Ask me anything about any of the 12 crops\n• Learn about hydroponics from scratch\n\nWhether you have a windowsill or a full room, Harvestify finds the right crop for you.`;
+
+    // Crop — can I grow it
+    if (crop && /(can i grow|is it possible|possible to grow|grow.*at home|grow.*inside)/i.test(t))
+        return `${crop.emoji} Yes! ${crop.name} is absolutely possible to grow hydroponically at home.\n\nDifficulty: ${crop.difficulty}\nGrow time: ${crop.growTime}\nBest system: ${crop.system}\n\n${crop.reason}\n\nAsk me "how to grow ${crop.name}" for the full step-by-step guide!`;
+
+    // Crop — how to grow
+    if (crop && /(how|grow|start|begin|setup|plant|steps|guide|tips|advice)/i.test(t))
+        return `${crop.emoji} How to grow ${crop.name}:\n\n${crop.howToGrow}`;
+
+    // Crop — why grow
+    if (crop && /(why|worth|benefit|reason|good|health|nutrition|should i)/i.test(t))
+        return `${crop.emoji} Why grow ${crop.name}?\n\n${crop.whyGrow}`;
+
+    // Crop — pH
+    if (crop && /(ph|acid|alkaline)/i.test(t))
+        return `${crop.emoji} ${crop.name} pH: ${crop.phRange}. Use a digital pH meter and adjust with pH Up or pH Down. Check every time you top up.`;
+
+    // Crop — EC
+    if (crop && /(\bec\b|nutrient|ppm|feed|strength)/i.test(t))
+        return `${crop.emoji} ${crop.name} EC: ${crop.ecRange}. Start at the lower end and increase as the plant matures. Too high causes salt stress and leaf tip burn.`;
+
+    // Crop — light
+    if (crop && /(light|sun|bright|hours|dark|dim)/i.test(t))
+        return `${crop.emoji} ${crop.name} needs ${crop.lightHours} of light per day. ${crop.light.includes("low") ? "Tolerates low light — a north-facing window or basic LED works." : crop.light.includes("lots") ? "Needs strong direct light — a south-facing window or dedicated grow light recommended." : "Moderate indirect light or a standard LED works well."}`;
+
+    // Crop — system
+    if (crop && /(system|setup|equipment|nft|dwc|kratky|bucket|method)/i.test(t))
+        return `${crop.emoji} Best system for ${crop.name}: ${crop.system}. Difficulty: ${crop.difficulty}. ${crop.growTime}.`;
+
+    // Crop — time
+    if (crop && /(time|long|week|days|harvest|ready|when)/i.test(t))
+        return `${crop.emoji} ${crop.name}: ${crop.growTime}. Difficulty: ${crop.difficulty}.`;
+
+    // Crop — general overview
+    if (crop)
+        return `${crop.emoji} Overview of ${crop.name}:\n\n📋 Difficulty: ${crop.difficulty}\n🕐 Grow time: ${crop.growTime}\n⚗️ pH: ${crop.phRange}\n📡 EC: ${crop.ecRange}\n💡 Light: ${crop.lightHours}\n🔧 System: ${crop.system}\n\n${crop.reason}\n\nAsk "how to grow ${crop.name}" for the step-by-step guide!`;
+
+    // Broad fallback
+    return `🌿 I can help with:\n\n🌱 How to grow any of our 12 crops\n🏠 Which crops suit your space\n💡 Light, pH, EC, and system requirements\n⚡ Fastest, easiest, or most nutritious crops\n💰 Cost of getting started\n🔧 Equipment you need\n🌊 What hydroponics is\n\nTry: "How do I grow lettuce?" or "I have a small apartment, what can I grow?"`;
 }
 
 let msgIdCounter = 0;
@@ -369,7 +422,7 @@ function buildChatBox() {
       <div class="chat-messages" id="chatMessages">
         <div class="chat-msg chat-msg--bot">
           <span class="msg-avatar">🌿</span>
-          <div class="msg-bubble">Hi! I'm your Harvestify crop guide 🌱 Ask me anything about our 12 hydroponic crops — how to grow them, why they're worth growing, equipment needed, or which crop suits your space!</div>
+          <div class="msg-bubble">Hi! I'm your Harvestify crop guide 🌱 Ask me anything — how to grow crops, what equipment you need, which crop suits your space, what hydroponics is, or anything else!</div>
         </div>
         <div class="chat-suggestions">
           <button class="chat-suggestion-btn">🥬 Best crop for a beginner?</button>
@@ -415,26 +468,16 @@ function handleSend() {
 
 // ─── ROTATING GLOBE ───────────────────────────────────────────────────────────
 const CONTINENTS = [
-    // North America
-    [[-168, 72], [-140, 70], [-125, 60], [-130, 54], [-124, 48], [-124, 37], [-117, 32], [-105, 20], [-90, 16], [-83, 10], [-77, 8], [-77, 25], [-80, 32], [-75, 45], [-65, 47], [-60, 46], [-64, 44], [-70, 41], [-72, 41], [-76, 34], [-80, 25], [-82, 28], [-85, 30], [-90, 29], [-94, 30], [-97, 26], [-100, 22], [-110, 24], [-116, 32], [-118, 34], [-124, 37], [-124, 48], [-130, 54], [-135, 58], [-140, 60], [-145, 60], [-152, 58], [-160, 56], [-165, 60], [-168, 60], [-168, 72]],
-    // Greenland
-    [[-44, 83], [-20, 83], [-18, 77], [-25, 72], [-44, 70], [-52, 68], [-54, 70], [-52, 75], [-44, 83]],
-    // South America
-    [[-82, 10], [-77, 8], [-60, -5], [-50, -1], [-36, -5], [-35, -8], [-37, -12], [-38, -18], [-40, -22], [-44, -23], [-48, -28], [-52, -33], [-58, -38], [-63, -42], [-65, -48], [-66, -55], [-68, -55], [-70, -52], [-72, -48], [-74, -44], [-72, -40], [-72, -35], [-70, -30], [-70, -18], [-76, -2], [-80, 0], [-82, 10]],
-    // Europe
-    [[0, 51], [2, 51], [8, 54], [10, 55], [12, 56], [18, 57], [24, 56], [26, 60], [28, 65], [26, 70], [20, 70], [15, 68], [12, 65], [10, 58], [5, 58], [0, 51]],
-    // Scandinavia
-    [[5, 58], [10, 58], [14, 56], [16, 57], [18, 58], [20, 60], [22, 63], [24, 65], [26, 68], [28, 70], [22, 70], [16, 68], [10, 63], [8, 60], [5, 58]],
-    // Africa
-    [[-18, 15], [0, 15], [10, 12], [15, 10], [20, 5], [25, 0], [30, -5], [35, -10], [35, -20], [32, -28], [28, -34], [20, -35], [16, -30], [14, -22], [10, -8], [8, 4], [2, 6], [-5, 5], [-8, 5], [-15, 10], [-18, 15]],
-    // Asia
-    [[26, 70], [35, 68], [50, 70], [70, 66], [100, 70], [130, 68], [140, 70], [160, 68], [168, 65], [165, 58], [145, 46], [140, 42], [135, 34], [130, 32], [122, 30], [110, 20], [100, 5], [104, -2], [110, -8], [115, -8], [108, 5], [100, 10], [96, 16], [88, 24], [80, 34], [62, 36], [52, 40], [48, 46], [40, 54], [36, 58], [30, 60], [26, 70]],
-    // Australia
-    [[114, -22], [122, -18], [128, -14], [136, -12], [140, -14], [148, -18], [152, -24], [154, -28], [150, -36], [144, -38], [136, -36], [128, -34], [120, -28], [114, -22]],
-    // India
-    [[68, 24], [72, 24], [76, 28], [80, 30], [84, 28], [88, 24], [88, 20], [84, 14], [80, 12], [76, 8], [72, 8], [70, 20], [68, 24]],
-    // Japan
-    [[130, 32], [134, 36], [138, 38], [140, 40], [141, 42], [138, 44], [132, 42], [130, 38], [130, 32]]
+    [[-168,72],[-140,70],[-125,60],[-130,54],[-124,48],[-124,37],[-117,32],[-105,20],[-90,16],[-83,10],[-77,8],[-77,25],[-80,32],[-75,45],[-65,47],[-60,46],[-64,44],[-70,41],[-72,41],[-76,34],[-80,25],[-82,28],[-85,30],[-90,29],[-94,30],[-97,26],[-100,22],[-110,24],[-116,32],[-118,34],[-124,37],[-124,48],[-130,54],[-135,58],[-140,60],[-145,60],[-152,58],[-160,56],[-165,60],[-168,60],[-168,72]],
+    [[-44,83],[-20,83],[-18,77],[-25,72],[-44,70],[-52,68],[-54,70],[-52,75],[-44,83]],
+    [[-82,10],[-77,8],[-60,-5],[-50,-1],[-36,-5],[-35,-8],[-37,-12],[-38,-18],[-40,-22],[-44,-23],[-48,-28],[-52,-33],[-58,-38],[-63,-42],[-65,-48],[-66,-55],[-68,-55],[-70,-52],[-72,-48],[-74,-44],[-72,-40],[-72,-35],[-70,-30],[-70,-18],[-76,-2],[-80,0],[-82,10]],
+    [[0,51],[2,51],[8,54],[10,55],[12,56],[18,57],[24,56],[26,60],[28,65],[26,70],[20,70],[15,68],[12,65],[10,58],[5,58],[0,51]],
+    [[5,58],[10,58],[14,56],[16,57],[18,58],[20,60],[22,63],[24,65],[26,68],[28,70],[22,70],[16,68],[10,63],[8,60],[5,58]],
+    [[-18,15],[0,15],[10,12],[15,10],[20,5],[25,0],[30,-5],[35,-10],[35,-20],[32,-28],[28,-34],[20,-35],[16,-30],[14,-22],[10,-8],[8,4],[2,6],[-5,5],[-8,5],[-15,10],[-18,15]],
+    [[26,70],[35,68],[50,70],[70,66],[100,70],[130,68],[140,70],[160,68],[168,65],[165,58],[145,46],[140,42],[135,34],[130,32],[122,30],[110,20],[100,5],[104,-2],[110,-8],[115,-8],[108,5],[100,10],[96,16],[88,24],[80,34],[62,36],[52,40],[48,46],[40,54],[36,58],[30,60],[26,70]],
+    [[114,-22],[122,-18],[128,-14],[136,-12],[140,-14],[148,-18],[152,-24],[154,-28],[150,-36],[144,-38],[136,-36],[128,-34],[120,-28],[114,-22]],
+    [[68,24],[72,24],[76,28],[80,30],[84,28],[88,24],[88,20],[84,14],[80,12],[76,8],[72,8],[70,20],[68,24]],
+    [[130,32],[134,36],[138,38],[140,40],[141,42],[138,44],[132,42],[130,38],[130,32]]
 ];
 
 let globeRotation = 0;
@@ -454,18 +497,25 @@ function drawGlobe() {
     const ctx = canvas.getContext("2d");
     const W = canvas.width, H = canvas.height;
     const cx = W / 2, cy = H / 2, r = W * 0.42;
-
     ctx.clearRect(0, 0, W, H);
 
-    // ── CHANGED: Ocean sphere — light blue matching the provided color swatch ──
+    // Sage green halo
+    const halo = ctx.createRadialGradient(cx, cy, r * 0.88, cx, cy, r * 1.42);
+    halo.addColorStop(0,   "rgba(168,197,173,0.4)");
+    halo.addColorStop(0.5, "rgba(214,232,217,0.2)");
+    halo.addColorStop(1,   "transparent");
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.42, 0, Math.PI * 2);
+    ctx.fillStyle = halo; ctx.fill();
+
+    // Ocean
     const ocean = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, r * 0.05, cx, cy, r);
-    ocean.addColorStop(0, "#7A9DBF");
+    ocean.addColorStop(0,   "#7A9DBF");
     ocean.addColorStop(0.5, "#4A6F9A");
-    ocean.addColorStop(1, "#2D4F78");
+    ocean.addColorStop(1,   "#2D4F78");
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = ocean; ctx.fill();
 
-    // Continents — clipped to sphere, back-face culled (unchanged logic)
+    // Continents
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
     CONTINENTS.forEach(poly => {
@@ -484,7 +534,7 @@ function drawGlobe() {
     });
     ctx.restore();
 
-    // 3D depth shading (unchanged)
+    // 3D shading
     const shade = ctx.createRadialGradient(cx - r * 0.25, cy - r * 0.25, r * 0.1, cx + r * 0.3, cy + r * 0.3, r * 1.1);
     shade.addColorStop(0, "transparent");
     shade.addColorStop(0.6, "transparent");
@@ -492,7 +542,7 @@ function drawGlobe() {
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = shade; ctx.fill();
 
-    // Highlight (unchanged)
+    // Highlight
     const hl = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, 0, cx - r * 0.35, cy - r * 0.35, r * 0.6);
     hl.addColorStop(0, "rgba(255,255,255,0.09)");
     hl.addColorStop(1, "transparent");
@@ -530,18 +580,10 @@ function buildCustomCursor() {
     const cursor = document.createElement("div");
     cursor.id = "customCursor";
     document.body.appendChild(cursor);
-    let mouseX = -100, mouseY = -100;
-    let curX = -100, curY = -100;
-    document.addEventListener("mousemove", e => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-    document.addEventListener("mouseleave", () => {
-        cursor.style.opacity = "0";
-    });
-    document.addEventListener("mouseenter", () => {
-        cursor.style.opacity = "1";
-    });
+    let mouseX = -100, mouseY = -100, curX = -100, curY = -100;
+    document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; });
+    document.addEventListener("mouseleave", () => { cursor.style.opacity = "0"; });
+    document.addEventListener("mouseenter", () => { cursor.style.opacity = "1"; });
     (function animateCursor() {
         curX += (mouseX - curX) * 0.12;
         curY += (mouseY - curY) * 0.12;
