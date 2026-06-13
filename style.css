@@ -1103,6 +1103,33 @@ body {
     transform: scale(1.08);
 }
 
+/* ── CUSTOM CURSOR ── */
+* {
+    cursor: none !important;
+}
+
+#customCursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(26, 58, 143, 0.25);
+    border: 2px solid #1a3a8f;
+    pointer-events: none;
+    z-index: 99999;
+    transition: width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+#customCursor.cursor-hover {
+    width: 36px;
+    height: 36px;
+    background: rgba(26, 58, 143, 0.15);
+    border-color: #2a52b0;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
     .hero {

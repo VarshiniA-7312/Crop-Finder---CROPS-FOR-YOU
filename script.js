@@ -503,12 +503,65 @@ function drawGlobe() {
     requestAnimationFrame(drawGlobe);
 }
 
+// ─── SCROLL ANIMATIONS ────────────────────────────────────────────────────────
+function buildScrollAnimations() {
+    const targets = document.querySelectorAll(".about-section, .stat-card, .crop-scroll-section, .quiz-section, .site-footer, .about-text, .section-title, .about-body");
+    targets.forEach(el => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(32px)";
+        el.style.transition = "opacity 0.7s ease, transform 0.7s ease";
+    });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = "1";
+                    entry.target.style.transform = "translateY(0)";
+                }, 80);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    targets.forEach(el => observer.observe(el));
+}
+
+// ─── CUSTOM CURSOR ────────────────────────────────────────────────────────────
+function buildCustomCursor() {
+    const cursor = document.createElement("div");
+    cursor.id = "customCursor";
+    document.body.appendChild(cursor);
+    let mouseX = -100, mouseY = -100;
+    let curX = -100, curY = -100;
+    document.addEventListener("mousemove", e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+    document.addEventListener("mouseleave", () => {
+        cursor.style.opacity = "0";
+    });
+    document.addEventListener("mouseenter", () => {
+        cursor.style.opacity = "1";
+    });
+    (function animateCursor() {
+        curX += (mouseX - curX) * 0.12;
+        curY += (mouseY - curY) * 0.12;
+        cursor.style.transform = `translate(${curX - 12}px, ${curY - 12}px)`;
+        requestAnimationFrame(animateCursor);
+    })();
+    document.querySelectorAll("a, button, .option-btn, .chat-bubble, .chat-suggestion-btn").forEach(el => {
+        el.addEventListener("mouseenter", () => cursor.classList.add("cursor-hover"));
+        el.addEventListener("mouseleave", () => cursor.classList.remove("cursor-hover"));
+    });
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     buildTicker();
     buildChatBox();
     drawGlobe();
     goToStep(0);
+    buildScrollAnimations();
+    buildCustomCursor();
     document.querySelectorAll(".option-btn").forEach(btn => {
         btn.addEventListener("click", () => handleOptionClick(btn));
     });
