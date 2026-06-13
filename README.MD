@@ -1,4 +1,4 @@
-🌿 Harvestify: The Beginner’s Gap Solution
+🌿 Harvestify: The Beginner’s Gap Solution - PROJECT NUMBER 3
 
 An interactive, responsive Hydroponic Growing Platform designed and built for those looking to turn every home in the world into a micro-farm. This tool demonstrates the ease of transitioning from traditional, intimidating soil-based gardening to Harvestify’s streamlined, automated hydroponic system.
 
