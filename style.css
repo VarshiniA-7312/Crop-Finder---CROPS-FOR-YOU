@@ -210,7 +210,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-52%, -48%);
-    background: radial-gradient(ellipse at 48% 52%, #A8C5AD 0%, #C8DEC9 30%, #D6E8D9 55%, transparent 75%);
+    background: radial-gradient(ellipse at 48% 52%, #0a1f5e 0%, #1a3a8f 30%, #2a52b0 55%, transparent 75%);
     border-radius: 44% 56% 52% 48% / 48% 44% 56% 52%;
     filter: blur(38px);
     opacity: 0.55;
